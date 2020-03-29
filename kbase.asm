@@ -1,0 +1,4 @@
+; defs
+KBSIZE EQU $0400
+SECTION "kbase",ROM0
+
