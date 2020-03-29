@@ -26,14 +26,14 @@ testfont:
 SECTION "main",ROM0
 start:
 	CALL .init_sys
-	jp main_loop
+	JP main_loop
 
 .init_sys:
 	; turn off LCD
 	LD A,[rLY]
 	CP 144
 	JR C,.init_sys ; wait for end of VBlank...
-	xor a
+	LD A, LCDCF_OFF
 	ld [rLCDC],A
 	; palette reset
 	LD A,%11100100
@@ -43,7 +43,12 @@ start:
 	; initialize misc memory
 	CALL .init_wram
 	CALL .init_oam
+	; enable interrupts
+	EI
+	LD A,STATF_VB
+	LD [rSTAT],A
 	; enable LCD again
+	LD A, LCDCF_ON | LCDCF_BGON
 	RET
 .init_wram:
 	LD HL,_RAM
@@ -60,9 +65,21 @@ start:
 	RET
 .init_oam:
 	RET
-	
 
 main_loop:
-	LD HL,_RAM
-	INC [HL]
+	; do bullshit
+	LD HL,_VRAM
+	LD A,[HL]
+	INC A
+	LD [HL],A
+	; wait
+	LD A,LCDCF_ON | LCDCF_BGON | LCDCF_BG8000
+	CALL .vbl_wait
 	jr main_loop
+
+.vbl_wait:
+	LD a,[rLY]
+	CP A,144
+	JR NZ,.vbl_wait
+	RET
+
