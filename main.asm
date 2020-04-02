@@ -1,5 +1,6 @@
 INCLUDE "hardware.inc"
 INCLUDE "kbase.asm"
+INCLUDE "misc.asm"
 INCLUDE "suwako.asm"
 INCLUDE "suwa_obj.asm"
 
@@ -9,15 +10,17 @@ entrypoint:
 	DI
 	JP start
 
+SECTION "vblank",ROM0[$0040]
+int_vblank:
+	RETI
+
 ; data
 SECTION "data",ROM0[$0150]
 testtxt:
 	DW .txt0
 	DW .txt1
-.txt0:
-	DB "oh! create!",0
-.txt1:
-	DB "ah? remove?",0
+.txt0: DB "oh! create!",0
+.txt1: DB "ah? remove?",0
 
 testfont:
 	INCBIN "gfx/font.chr"
@@ -26,9 +29,17 @@ testfont_end:
 ; main code
 SECTION "main",ROM0
 start:
+	EI
+	LD A,IEF_VBLANK
+	LD [rIE],A
+	LD SP,$FFFF
+.loop:
+	LD HL,time
+	INC [HL]
+	CALL wait_vbl
+	JP main_loop
 	CALL .init_sys
 	CALL .init_fnt
-	JP main_loop
 
 .init_fnt:
 	; copy char to vram
@@ -40,22 +51,17 @@ start:
 	LD BC,testtxt.txt0
 	LD HL,_SCRN0
 	CALL strcpy
-	; copy to wram
-	LD HL,_RAM
-	LD BC,testtxt.txt1
-	CALL strcpy
 	; turn on lcd
 	LD A, LCDCF_ON | LCDCF_BGON | LCDCF_BG8000
+	XOR A
 	LD [rLCDC],A
 	RET
 
 .init_sys:
 	; turn off LCD
-	LD A,[rLY]
-	CP 144
-	JR C,.init_sys ; wait for end of VBlank...
-	LD A, LCDCF_OFF
-	ld [rLCDC],A
+	CALL wait_vbl
+	XOR A
+	LD [rLCDC],A
 	; palette reset
 	LD A,%11100100
 	LD [rBGP],A
@@ -71,15 +77,17 @@ start:
 	LD B,$FF
 	CALL memset
 	; VRAM clear
-	LD HL,_VRAM
-	LD DE,$2000
+	LD HL,_SCRN0
+	LD DE,$400
 	LD B,$00
 	CALL memset
 	RET
 
 main_loop:
 	; do bullshit
-	
+	LD HL,time
+	INC [HL]
 	; wait
+	CALL wait_vbl
 	jr main_loop
 

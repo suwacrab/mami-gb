@@ -1,1 +1,3 @@
+SUWA_MAX EQU $80
 SECTION "suwa_obj",ROM0
+

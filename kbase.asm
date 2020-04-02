@@ -1,7 +1,13 @@
 ; defs
 KBSIZE EQU $0400
 SECTION "kbase",ROM0
-memcpy:
+
+wait_vbl:
+	HALT
+	NOP
+	RET
+
+memcpy: ; copy bytes
 	; DE = count
 	; HL = dst
 	; BC = src
@@ -21,7 +27,7 @@ memcpy:
 	JR NZ,.loop
 	RET
 
-memset:
+memset: ; set bytes
 	; DE = count
 	; HL = dst
 	; B = byte to set with
@@ -38,7 +44,7 @@ memset:
 	JR NZ,.loop
 	RET
 
-strcpy:
+strcpy: ; copy string
 	; HL = dst
 	; BC = src
 	PUSH HL
@@ -52,4 +58,5 @@ strcpy:
 	POP BC
 	POP HL
 	RET
+
 
