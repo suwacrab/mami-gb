@@ -1,10 +1,29 @@
 ; defs
 KBSIZE EQU $0400
-SECTION "kbase",ROM0
-
 wait_vbl:
 	HALT
 	NOP
+	RET
+
+palcpy: ; copy palette
+	; HL = source
+	; A = index
+	; DE = count ( in bytes! )
+	LD B,(1<<7)
+	ADD A,A ; multiply index by 2
+	OR A,B ; set auto-increment
+	LD [rBCPS],A
+.cpy:
+	LDI A,[HL]
+	LD [rBCPD],A
+	DEC DE
+.check:
+	LD A,E
+	CP $00
+	JR NZ,.cpy
+	LD A,D
+	CP $00
+	JR NZ,.cpy
 	RET
 
 memcpy: ; copy bytes
