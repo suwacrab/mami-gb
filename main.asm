@@ -37,9 +37,9 @@ start:
 	LD HL,time
 	INC [HL]
 	CALL wait_vbl
-	JP main_loop
 	CALL .init_sys
 	CALL .init_fnt
+	JP main_loop
 
 .init_fnt:
 	; copy char to vram
@@ -53,7 +53,6 @@ start:
 	CALL strcpy
 	; turn on lcd
 	LD A, LCDCF_ON | LCDCF_BGON | LCDCF_BG8000
-	XOR A
 	LD [rLCDC],A
 	RET
 
@@ -84,9 +83,19 @@ start:
 	RET
 
 main_loop:
+	; turn off LCD
+	XOR A
+	LD [rLCDC],A
 	; do bullshit
-	LD HL,time
-	INC [HL]
+	LD A,$00
+.addtime:
+	CALL time_add
+	INC A
+	CP A,$04
+	JR Z,.addtime
+	; turn on lcd
+	LD A, LCDCF_ON | LCDCF_BGON | LCDCF_BG8000
+	LD [rLCDC],A
 	; wait
 	CALL wait_vbl
 	jr main_loop
