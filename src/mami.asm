@@ -1,7 +1,7 @@
 SECTION "mami_code",ROM0
 mami_updt:
-	;CALL joyp_check
-	;CALL spr_test
+	CALL joyp_check
+	CALL spr_test
 	RET
 joyp_check:
 	; enable buttons

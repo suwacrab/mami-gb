@@ -30,13 +30,12 @@ main_init:
 	; init & jump to mai
 	CALL .init_sys
 	CALL .init_gfx
-	CALL wait_vbl
 	JP main_loop
 
 .init_gfx:
-	CALL .init_pals
+	;CALL .init_pals
 	CALL .init_fnt
-	CALL .init_mamigfx
+	;CALL .init_mamigfx
 	RET
 
 .init_pals:
@@ -100,7 +99,7 @@ main_init:
 	; WRAM clear
 	LD HL,_RAM
 	LD DE,$2000
-	LD B,$FF
+	LD B,$7F
 	CALL memset
 	; OAM clear
 	CALL copy_oam

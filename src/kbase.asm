@@ -4,7 +4,7 @@ OAMSIZE EQU $4 * 40
 wait_vbl:
 	HALT
 	NOP
-	RETI
+	RET
 
 palcpy: ; copy bg palette
 	; HL = source
