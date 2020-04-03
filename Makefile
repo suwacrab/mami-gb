@@ -14,7 +14,7 @@ OBJ = mami.o
 NAME = build/mami.gbc
 
 all:
-	$(ASM) -E -o $(OBJ) main.asm
+	$(ASM) -E -o $(OBJ) src/main.asm
 	$(LNK) -n $(SYMNAME) -o $(NAME) $(OBJ)
 	$(FIX) $(FIXFLAG) $(NAME)
 

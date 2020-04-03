@@ -2,6 +2,7 @@ SECTION "main_ram",WRAM0[$C000]
 time: DS $02
 joyA: DS $01
 joyB: DS $01
+oam_shadow: DS $04 * 40
 ; suwa shot:
 ; $08 : pos & vel
 ; $02 : dead,id

@@ -1,11 +1,12 @@
 ; defs
 KBSIZE EQU $0400
+OAMSIZE EQU $4 * 40
 wait_vbl:
 	HALT
 	NOP
-	RET
+	RETI
 
-palcpy: ; copy palette
+palcpy: ; copy bg palette
 	; HL = source
 	; A = index
 	; DE = count ( in bytes! )
@@ -16,6 +17,27 @@ palcpy: ; copy palette
 .cpy:
 	LDI A,[HL]
 	LD [rBCPD],A
+	DEC DE
+.check:
+	LD A,E
+	CP $00
+	JR NZ,.cpy
+	LD A,D
+	CP $00
+	JR NZ,.cpy
+	RET
+
+palcpy_obj: ; copy obj palette
+	; HL = source
+	; A = index
+	; DE = count ( in bytes! )
+	LD B,(1<<7)
+	ADD A,A ; multiply index by 2
+	OR A,B ; set auto-increment
+	LD [rOCPS],A
+.cpy:
+	LDI A,[HL]
+	LD [rOCPD],A
 	DEC DE
 .check:
 	LD A,E
